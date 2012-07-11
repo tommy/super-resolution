@@ -3,16 +3,16 @@
   (:use quil.core))
 
 (defn transform-img
-  [data i p]
-  (let [oldimg (nth (:imgs @data) i)]
-    ()))
+  [data [i p]]
+  (let [oldimg (nth (:imgs @data) i)
+        newimg (proj/transform oldimg p)]
+    [i newimg]))
 
 (defn transform-imgs
-  [data]
-  (let [ps (:transform @(state :step-do))]
-    (dosync
-      (alter data assoc :trans
-        (map (partial transform-img data) ps)))))
+  [data ps]
+  (dosync
+    (alter data assoc :trans
+      (map (partial transform-img data) ps))))
 
 (defn by-state
   [& args]
@@ -25,8 +25,9 @@
 (def step-do
   {nil (fn [_] nil)
    :feature-match (fn [_] nil)
-   :transform [proj/calculate-transformations
-               transform-imgs]})
+   :transform (fn [data]
+                (transform-imgs data
+                  (proj/calculate-transformations data)))})
 
 (defn advance-step
   [data]
@@ -167,8 +168,22 @@
 
 (defmethod draw :transform
   [data]
-  (do
-    (background 10)))
+  (let [imgs (:imgs @data)
+        trans (:trans @data)
+        img-a (first imgs)
+        img-b (second imgs)
+        img-b' (-> trans first second)]
+    (do
+      (background 10)
+      ;(text-align :center)
+      (text-font (create-font "Georgia" 10 true))
+      (text "A" 0 10)
+      (set-image 0 10 img-a)
+      (text "B" 0 30)
+      (set-image 0 30 img-b)
+      (text "B'" 0 50)
+      (set-image 0 50 img-b')
+      )))
 
 
 ;; CLICK HANDLING

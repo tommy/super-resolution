@@ -1,5 +1,6 @@
 (ns sr.projective
-  (:require [incanter.core :as i]))
+  (:require [incanter.core :as i])
+  (:require [quil.core :as q]))
 
 (def m i/matrix)
 
@@ -45,8 +46,8 @@
 
 (defn make-transformation
   [points]
-  (let [u (apply U1D (map :u points))
-        A (apply A1D (map #(vector (:u %) (:x %)) points))
+  (let [u (apply U1D (map :x points))
+        A (apply A1D (map #(vector (:x %) (:u %)) points))
         [a b c] (mult (i/solve A) u)]
     (p a b c)))
 
@@ -56,3 +57,43 @@
         f (fn [m [k v]]
             (assoc m k (make-transformation v)))]
     (reduce f {} features)))
+
+
+(defn safe-nth
+  [coll n i default]
+  (if
+    (<= 0 i (dec n)) (nth coll i)
+    default))
+
+(defn one-row
+  [img]
+  (let [w (.width img)
+        px (.pixels img)]
+    (take w (vec px))))
+
+(defn one-d-img
+  [h row]
+  (let [s (* h (count row))]
+    (take s (cycle row))))
+
+
+(defn transform-1d-vector
+  [old p]
+  (let [rs (range (count old))
+        n (count old)
+        newvec
+         (map (comp #(safe-nth old n % 0) p) rs)]
+    (vec newvec)))
+
+(defn transform
+  [oldimg p]
+  (let [w (.width oldimg)
+        h (.height oldimg)
+        newimg (q/create-image w h (int 1))
+        oldvec (one-row oldimg)
+        newvec (one-d-img h (transform-1d-vector oldvec p))]
+    (do
+      (set! (.pixels newimg) (into-array Integer/TYPE newvec))
+      (.updatePixels newimg)
+      newimg)
+        ))
