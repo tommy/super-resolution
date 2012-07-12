@@ -51,12 +51,18 @@
         [a b c] (mult (i/solve A) u)]
     (p a b c)))
 
+(defn spy
+  [v]
+  (do
+    (println "***** " v)
+    v))
+
 (defn calculate-transformations
   [data]
-  (let [features (filter #(some (set [(first %)]) (range 10)) (:features @data))
+  (let [features (get-in @data [:feature-match :features])
         f (fn [m [k v]]
             (assoc m k (make-transformation v)))]
-    (reduce f {} features)))
+    (spy (reduce f {} features))))
 
 
 (defn safe-nth

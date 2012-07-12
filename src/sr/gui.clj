@@ -2,21 +2,23 @@
   (:require [sr.projective :as proj])
   (:use quil.core)
   (:use sr.data)
-  (:use sr.feature))
+  (:use sr.feature)
+  (:use sr.image))
 
 (defn transform-img
-  [data [i p]]
-  (let [oldimg (nth (:imgs @data) i)
+  [data [fname p]]
+  (let [oldimg (get-image data fname)
         newimg (proj/transform oldimg p)]
-    [i newimg]))
+    {fname newimg}))
 
 (defn transform-imgs
   [data ps]
-  (dosync
-    (alter data assoc :trans
-      (map (partial transform-img data) ps))))
+  (let [f (fn [m p] (into m (transform-img data p)))]
+    (make data [:trans]
+      (reduce f {} ps))))
 
 (defn by-state
+  "The current state. Used for multimethod dispatch."
   [& args]
   @(state :step))
 
@@ -45,40 +47,20 @@
               :step-do (ref {})))
 
 
-
-(defn within?
-  [x' y' [x y w h]]
-  (and
-    (<= x x' (+ x w))
-    (<= y y' (+ y h))))
-
-(defn img-within?
-  [x' y' pos]
-  (if (within? x' y' (val pos))
-    pos
-    false))
-
-(defn clicked-img
-  [ps x y]
-  (let [is (filter (partial img-within? x y) ps)]
-    (first is)))
-
 ;; SETUP
 
 (defn load-imgs
   [data]
   (let [fnames (:fnames @data)
-        imgs (map load-image fnames)]
-      (dosync
-        (alter data assoc :imgs imgs))))
+        f (fn [m k] (assoc m k (load-image k)))
+        m (reduce f {} fnames)]
+    (make data [:imgs] m)))
 
 (defn setup
   [data]
   (do
     (load-imgs data)
-    (dosync (alter data assoc :curr 0))
-    (dosync (alter data assoc :features {:n 1}))
-    ;(dosync (alter data assoc :pos {}))
+    (init-features data)
     (set-step)
     (prn @data)))
 
@@ -99,21 +81,22 @@
 
 (defmethod draw :transform
   [data]
-  (let [imgs (:imgs @data)
+  (let [prim (get-image data (primary data))
         trans (:trans @data)
-        img-a (first imgs)
-        img-b (second imgs)
-        img-b' (-> trans first second)]
+        boths (map #(vector (get-image data (key %)) (val %)) trans)
+        img-b (ffirst boths)
+        img-b' (second (first boths))]
     (do
       (background 10)
-      ;(text-align :center)
       (text-font (create-font "Georgia" 10 true))
-      (text "A" 0 10)
-      (set-image 0 10 img-a)
+      (text "U" 0 10)
+      (set-image 0 10 prim)
+
       (text "B" 0 30)
       (set-image 0 30 img-b)
       (text "B'" 0 50)
       (set-image 0 50 img-b')
+
       )))
 
 
@@ -121,7 +104,7 @@
 
 (defn checked-step-transition
   [data]
-  (when (< 3 (num-features data))
+  (when (feature-matching-done? data)
     (advance-step data)
     (println "New state is: " @(state :step))))
 
@@ -131,11 +114,9 @@
   [data]
   (do
     (let [x (mouse-x)
-          y (mouse-y)
-          n (num-features data)]
-      (add-feature data n x) ; only 1D feature for now
-      (inc-curr data)
-      (checked-inc-feature data)
+          y (mouse-y)]
+      (add-feature data x) ; only 1D feature for now
+      (drop-curr data)
       (checked-step-transition data)
       (prn @data)
       )))

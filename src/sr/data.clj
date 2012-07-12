@@ -4,6 +4,11 @@
   [fnames]
   (ref {:fnames fnames}))
 
+(defn make
+  [data ks v]
+  (dosync
+    (alter data update-in ks (constantly v))))
+
 (defn change
   [data & args]
   (dosync
