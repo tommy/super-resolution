@@ -1,5 +1,7 @@
 (ns sr.gui
   (:require [sr.projective :as proj])
+  (:use [clojure.tools.logging :only [spy]])
+  (:use sr.logging)
   (:use quil.core)
   (:use sr.data)
   (:use sr.feature)
@@ -13,7 +15,7 @@
 
 (defn transform-imgs
   [data ps]
-  (let [f (fn [m p] (into m (transform-img data p)))]
+  (let [f (fn [m p] (note (into m (transform-img data p))))]
     (make data [:trans]
       (reduce f {} ps))))
 
@@ -92,10 +94,12 @@
       (text "U" 0 10)
       (set-image 0 10 prim)
 
-      (text "B" 0 30)
-      (set-image 0 30 img-b)
-      (text "B'" 0 50)
-      (set-image 0 50 img-b')
+      (let [y (+ 30 (.height prim))]
+        (text "B" 0 y)
+        (set-image 0 y img-b)
+        (let [y' (+ 30 y)]
+          (text "B'" 0 y')
+          (set-image 0 y' img-b')))
 
       )))
 
@@ -115,7 +119,7 @@
   (do
     (let [x (mouse-x)
           y (mouse-y)]
-      (add-feature data x) ; only 1D feature for now
+      (add-feature data [x y]) ; only 1D feature for now
       (drop-curr data)
       (checked-step-transition data)
       (prn @data)
@@ -123,7 +127,7 @@
 
 (defmethod click-handle :default
   [data]
-  nil)
+  (prn @data))
 
 (defn open
   [fnames]

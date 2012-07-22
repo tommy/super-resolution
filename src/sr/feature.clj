@@ -17,7 +17,7 @@
 
   This value depends on the dimension of the images."
   [data]
-  3)
+  8)
 
 (defn ordered-fnames
   "Returns a seq of the fnames of the images in the order that they
