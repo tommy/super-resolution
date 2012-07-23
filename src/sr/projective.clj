@@ -192,15 +192,19 @@
     (vec newvec)))
 
 (defn transform-2d-matrix
+  "Result is returned as row-major seq."
   [mat p]
   (let [pt-transform
-         (comp #(safe-nth-2 mat % 0) p i/matrix)]
-    (i/matrix
-      (map
-        pt-transform
-        (for [x (range (spy (i/ncol mat)))
-              y (range (spy (i/nrow mat)))]
-          (vector x y))))))
+         (as-task-item :trans
+           (comp #(safe-nth-2 mat % 0) p i/matrix))
+        cols (i/ncol mat)
+        rows (i/nrow mat)
+        _ (task :trans (* cols rows))]
+    (map
+      pt-transform
+      (for [x (range (spy cols))
+            y (range (spy rows))]
+        (vector x y)))))
 
 (defn transform-1d
   [oldimg p]
@@ -223,8 +227,8 @@
         h (.height oldimg)
         newimg (note (q/create-image w h (int 1)))
         oldmat (note (i/matrix (seq (.pixels oldimg)) w))
-        newmat (note (transform-2d-matrix oldmat p))
-        newpxs (into-array Integer/TYPE (to-list newmat))]
+        newseq (note (transform-2d-matrix oldmat p))
+        newpxs (into-array Integer/TYPE newseq)]
     (do
       (prn "Got the transformed img")
       (set! (.pixels newimg) newpxs)
