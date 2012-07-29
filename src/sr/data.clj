@@ -18,4 +18,6 @@
   [data]
   (count (:imgs @data)))
 
-
+(defn the-step
+  [data]
+  @(:step @data))

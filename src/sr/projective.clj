@@ -1,6 +1,7 @@
 (ns sr.projective
   (:require [incanter.core :as i])
   (:require [quil.core :as q])
+  (:import processing.core.PImage)
   (:use clojure.tools.logging)
   (:use sr.logging))
 
@@ -134,12 +135,6 @@
           [a b c] (mult (i/solve A) u)]
        (p a b c))))
 
-;(defn spy
-;  [v]
-;  (do
-;    (println "***** " v)
-;    v))
-
 (defn calculate-transformations
   [data]
   (let [features (get-in @data [:feature-match :features])
@@ -202,15 +197,15 @@
         _ (task :trans (* cols rows))]
     (map
       pt-transform
-      (for [x (range (spy cols))
-            y (range (spy rows))]
+      (for [x (range cols)
+            y (range rows)]
         (vector x y)))))
 
 (defn transform-1d
   [oldimg p]
   (let [w (.width oldimg)
         h (.height oldimg)
-        newimg (q/create-image w h (int 1))
+        newimg (PImage. w h (int 1))
         oldvec (one-row oldimg)
         newvec (one-d-img h (transform-1d-vector oldvec p))]
     (do
@@ -225,7 +220,7 @@
   [oldimg p]
   (let [w (.width oldimg)
         h (.height oldimg)
-        newimg (note (q/create-image w h (int 1)))
+        newimg (note (PImage. w h (int 1)))
         oldmat (note (i/matrix (seq (.pixels oldimg)) w))
         newseq (note (transform-2d-matrix oldmat p))
         newpxs (into-array Integer/TYPE newseq)]
@@ -233,7 +228,7 @@
       (prn "Got the transformed img")
       (set! (.pixels newimg) newpxs)
       (.updatePixels newimg)
-      (.save newimg "transformed-image.png")
+      ;(.save newimg "transformed-image.png")
       newimg)))
 
 (def transform transform-2d)
