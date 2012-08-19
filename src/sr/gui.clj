@@ -15,14 +15,10 @@
 
 (defn transform-imgs
   [data ps]
+  {:pre [(every? fn? ps)]}
   (let [f (fn [m p] (note (into m (transform-img data p))))]
     (make data [:trans]
       (reduce f {} ps))))
-
-(defn the-state
-  "The current state. Used for multimethod dispatch."
-  [& args]
-  @(state :step))
 
 (def nothing (constantly nil))
 
@@ -45,17 +41,12 @@
 
 (defn advance-step
   [data]
-  (dosync
-    (alter (state :step) next-step))
+  (change data [:step] next-step)
   (let [result (future (step-do data))]
-    (dosync
-      (alter (state :step-do)
-        assoc (the-state) result))
-    ;(prn @result)))
-  ))
+    (make data [:step-do (the-step data)] result)))
 
 
-(defmulti done? the-state)
+(defmulti done? the-step)
 
 (defmethod done? :feature-matching
   [data]
@@ -63,7 +54,7 @@
 
 (defmethod done? :transform
   [data]
-  (realized? (:transform @(state :step-do))))
+  (realized? (:transform (state :step-do))))
 
 (defmethod done? :default
   [& args]
@@ -74,6 +65,8 @@
 (defn load-imgs
   "Load PImages referenced by filenames."
   [data]
+  {:pre [(not (empty? (:fnames @data)))]
+   :post [(not (nil? (:imgs @data)))]}
   (let [fnames (:fnames @data)
         f (fn [m k] (assoc m k (load-image k)))
         m (reduce f {} fnames)]
@@ -81,12 +74,8 @@
 
 (defn set-step
   [data]
-  (let [step (ref nil)
-        step-do (ref {})]
-    (set-state! :step step
-                :step-do step-do)
-    (make data [:step] step)
-    (make data [:step-do] step-do))
+  (make data [:step] nil)
+  (make data [:step-do] {})
   (advance-step data))
 
 
@@ -114,7 +103,7 @@
   (let [h 20
         y (- (/ (height) 2) (/ h 2))
         total (/ (width) 3)
-        prog (* total (progress id))
+        prog (do (prn "id " id) (* total (progress id)))
         x (- (/ (width) 2) (/ total 2))
         color-total (color 100)
         color-done (color 200)]
@@ -129,7 +118,7 @@
     (rect x y prog h)))
 
 
-(defmulti draw the-state)
+(defmulti draw the-step)
 
 (defmethod draw :feature-match
   [data]
@@ -145,13 +134,17 @@
     (text "Transforming..." 0 (/ (height) 3))
     (progress-bar :trans)))
 
-(defmethod draw :display-transformation
+(defmethod draw :show-transformation
   [data]
   (let [prim (get-image data (primary data))
         trans (:trans @data)
         boths (map #(vector (get-image data (key %)) (val %)) trans)
         img-b (ffirst boths)
         img-b' (second (first boths))]
+    (assert (not (nil? prim)))
+    (assert (not (nil? trans)))
+    (assert (not (nil? img-b)))
+    (assert (not (nil? img-b')))
     (do
       (background 10)
       (text-font (create-font "Georgia" 10 true))
@@ -173,10 +166,11 @@
 (defn checked-step-transition
   [data]
   (when (done? data)
+    (println "Old state is: " (the-step data))
     (advance-step data)
-    (println "New state is: " (the-state))))
+    (println "New state is: " (the-step data))))
 
-(defmulti click-handle the-state)
+(defmulti click-handle the-step)
 
 (defmethod click-handle :feature-match
   [data]

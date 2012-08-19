@@ -5,6 +5,7 @@
 (defn feature-matching-done?
   "True if sufficiently many features have been identified."
   [data]
+  {:pre [(not (nil? (get-in @data [:feature-match :rest])))]}
   (empty?
     (get-in @data [:feature-match :rest])))
  
@@ -34,6 +35,7 @@
   That is, the image into whose projective space the other images
   will be transformed."
   [data]
+  {:post [(not (nil? %))]}
   (get-in @data [:feature-match :primary :fname]))
 
 (defn init-features
@@ -48,12 +50,14 @@
 (defn current-fname
   "The fname of the image whose features is currently being identified."
   [data]
+  {:post [(not (nil? %))]}
   (first
     (get-in @data [:feature-match :rest])))
 
 (defn current-image
   "The PImage whose feature is currently being identified."
   [data]
+  {:post [(not (nil? %))]}
   (let [c (current-fname data)]
     (get-in @data [:imgs c])))
 
