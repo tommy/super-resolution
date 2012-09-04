@@ -1,5 +1,10 @@
 (ns sr.data)
 
+(defn ref?
+  [x]
+  (= clojure.lang.Ref
+     (class x)))
+
 (defn create
   [fnames]
   {:pre [(not (empty? fnames))]}
@@ -7,18 +12,21 @@
 
 (defn make
   [data ks v]
-  {:pre [(coll? ks) (not (empty? ks))]}
+  {:pre [(coll? ks) (not (empty? ks))
+         (ref? data)]}
   (dosync
     (alter data update-in ks (constantly v))))
 
 (defn change
   [data & args]
+  {:pre [(ref? data)]}
   (dosync
     (apply alter data update-in args)))
 
 (defn count-imgs
   [data]
-  {:post [(< 0 %)]}
+  {:pre [(ref? data)]
+   :post [(< 0 %)]}
   (count (:imgs @data)))
 
 (def valid-states
@@ -37,6 +45,7 @@
   "Applies function f to data when (pred @data) evaluates
   to false. (Threadsafe.)"
   [pred f data]
+  {:pre [(ref? data)]}
   (let [d @data]
     (when-not (pred d)
       (f d))))

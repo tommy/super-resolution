@@ -48,12 +48,14 @@
 
 (defn advance-step
   [data]
+  {:pre [(ref? data)]}
   (change data [:step] next-step)
   (let [result (future (step-do data))]
     (make data [:step-do (the-step data)] result)))
 
 (defn checked-step-transition
   [data]
+  {:pre [(ref? data)]}
   (when (done? data)
     (println "Old state is: " (the-step data))
     (advance-step data)

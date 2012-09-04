@@ -10,7 +10,7 @@
   (set-image 0 0 (current-image data)))
 
 
-(defmethod done? :feature-matching
+(defmethod done? :feature-match
   [data]
   (feature-matching-done? @data))
 

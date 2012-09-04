@@ -2,15 +2,11 @@
   (:use sr.projective)
   (:use sr.data))
 
-(defn ref?
-  [x]
-  (= clojure.lang.Ref
-     (class x)))
-
 (defn feature-matching-done?
   "True if sufficiently many features have been identified."
   [data]
-  {:pre [(not (nil? (get-in data [:feature-match :rest])))]}
+  {:pre [(not (ref? data))
+         (not (nil? (get-in data [:feature-match :rest])))]}
   (empty?
     (get-in data [:feature-match :rest])))
 
@@ -29,6 +25,7 @@
   "Returns a seq of the fnames of the images in the order that they
   should appear on screen to perform the feature matching."
   [data]
+  {:pre [(not (ref? data))]}
   (let [fnames (keys (:imgs data))
         cycles (fn [n xs] (take (* n (count xs)) (cycle xs)))]
     (cycles (features-needed data) fnames)))
@@ -77,11 +74,13 @@
   "Drop the image of which we just identified a feature
   and move on to the next one."
   [data]
+  {:pre [(ref? data)]}
   (change data [:feature-match :rest] rest))
 
 (defn curr-primary-feature
   "The location of the current primary feature (the u value)."
   [data]
+  {:pre [(not (ref? data))]}
   (get-in data [:feature-match :primary :current-feature]))
 
 (defn feature-pair
@@ -90,6 +89,7 @@
 
   Uses the currently known primary feature."
   [data x]
+  {:pre [(not (ref? data))]}
   (let [u (curr-primary-feature data)]
     {:u u :x x}))
 
@@ -98,14 +98,16 @@
   feature clicked on the secondary images, until a new feature of
   the primary image is identified."
   [data u]
+  {:pre [(ref? data)]}
   (make data [:feature-match :primary :current-feature] u))
 
 (defn add-secondary-feature
   "Add an identified secondary feature, paired with the current
   primary feature."
   [data curr x]
+  {:pre [(ref? data)]}
   (change data [:feature-match :features curr]
-    conj (feature-pair data x)))
+    conj (feature-pair @data x)))
 
 (defn add-feature
   "Identify a new feature.
@@ -116,6 +118,7 @@
   If the current image is a secondary image, pair it with the
   current primary feature."
   [data p]
+  {:pre [(ref? data)]}
   (let [curr (current-fname @data)]
     (if (= curr (primary @data))
       (set-current-primary-feature data p)

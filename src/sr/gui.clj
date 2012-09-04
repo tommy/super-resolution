@@ -13,7 +13,8 @@
 (defn load-imgs
   "Load PImages referenced by filenames."
   [data]
-  {:pre [(not (empty? (:fnames @data)))]
+  {:pre [(ref? data)
+         (not (empty? (:fnames @data)))]
    :post [(not (nil? (:imgs @data)))]}
   (let [fnames (:fnames @data)
         f (fn [m k] (assoc m k (load-image k)))
@@ -22,6 +23,7 @@
 
 (defn set-step
   [data]
+  {:pre [(ref? data)]}
   (make data [:step] nil)
   (make data [:step-do] {})
   (advance-step data))
@@ -30,6 +32,7 @@
 (defn setup
   "Set up function for the sketch. Initializes values in the data object."
   [data]
+  {:pre [(ref? data)]}
   (doto data
     load-imgs
     init-features
