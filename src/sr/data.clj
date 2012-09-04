@@ -30,6 +30,13 @@
 (defn the-step
   [data]
   {:pre [(not (nil? data))]
-         ;(not (nil? (:step @data)))]
    :post [(contains? valid-states %)]}
   (:step @data))
+
+(defn do-data
+  "Applies function f to data when (pred @data) evaluates
+  to false. (Threadsafe.)"
+  [pred f data]
+  (let [d @data]
+    (when-not (pred d)
+      (f d))))

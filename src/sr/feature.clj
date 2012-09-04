@@ -2,13 +2,18 @@
   (:use sr.projective)
   (:use sr.data))
 
+(defn ref?
+  [x]
+  (= clojure.lang.Ref
+     (class x)))
+
 (defn feature-matching-done?
   "True if sufficiently many features have been identified."
   [data]
-  {:pre [(not (nil? (get-in @data [:feature-match :rest])))]}
+  {:pre [(not (nil? (get-in data [:feature-match :rest])))]}
   (empty?
-    (get-in @data [:feature-match :rest])))
- 
+    (get-in data [:feature-match :rest])))
+
 ;; Functions on the data object
 
 (defn features-needed
@@ -18,15 +23,15 @@
 
   This value depends on the dimension of the images."
   [data]
-  8)
+  3)
 
 (defn ordered-fnames
   "Returns a seq of the fnames of the images in the order that they
   should appear on screen to perform the feature matching."
   [data]
-  (let [fnames (keys (:imgs @data))
-        f #(take (* (features-needed data) (count %)) (cycle %))]
-    (f fnames)))
+  (let [fnames (keys (:imgs data))
+        cycles (fn [n xs] (take (* n (count xs)) (cycle xs)))]
+    (cycles (features-needed data) fnames)))
 
 
 (defn primary
@@ -35,31 +40,38 @@
   That is, the image into whose projective space the other images
   will be transformed."
   [data]
-  {:post [(not (nil? %))]}
-  (get-in @data [:feature-match :primary :fname]))
+  {:pre [(not (ref? data))]
+   :post [(not (nil? %))]}
+  (get-in data [:feature-match :primary :fname]))
 
 (defn init-features
   "Initialize some of the properties that will be needed for the
   feature matching."
   [data]
-  (let [os (ordered-fnames data)
+  {:pre [(ref? data)]
+   :post [(not (nil? (get-in @data [:feature-match :rest])))
+          (not (nil? (get-in @data [:feature-match :primary :fname])))]}
+  (let [os (ordered-fnames @data)
         primary (first os)]
+    (prn os)
     (make data [:feature-match :rest] os)
     (make data [:feature-match :primary :fname] primary)))
 
 (defn current-fname
   "The fname of the image whose features is currently being identified."
   [data]
-  {:post [(not (nil? %))]}
+  {:pre [(not (ref? data))]
+   :post [(not (nil? %))]}
   (first
-    (get-in @data [:feature-match :rest])))
+    (get-in data [:feature-match :rest])))
 
 (defn current-image
   "The PImage whose feature is currently being identified."
   [data]
-  {:post [(not (nil? %))]}
+  {:pre [(not (ref? data))]
+   :post [(not (nil? %))]}
   (let [c (current-fname data)]
-    (get-in @data [:imgs c])))
+    (get-in data [:imgs c])))
 
 (defn drop-curr
   "Drop the image of which we just identified a feature
@@ -70,7 +82,7 @@
 (defn curr-primary-feature
   "The location of the current primary feature (the u value)."
   [data]
-  (get-in @data [:feature-match :primary :current-feature]))
+  (get-in data [:feature-match :primary :current-feature]))
 
 (defn feature-pair
   "A matched feature between the primary image and one of the
@@ -104,7 +116,7 @@
   If the current image is a secondary image, pair it with the
   current primary feature."
   [data p]
-  (let [curr (current-fname data)]
-    (if (= curr (primary data))
+  (let [curr (current-fname @data)]
+    (if (= curr (primary @data))
       (set-current-primary-feature data p)
       (add-secondary-feature data curr p))))

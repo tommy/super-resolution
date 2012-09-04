@@ -137,7 +137,7 @@
 
 (defn calculate-transformations
   [data]
-  (let [features (get-in @data [:feature-match :features])
+  (let [features (get-in data [:feature-match :features])
         f (fn [m [k v]]
             (assoc m k (make-transformation v)))]
     (spy (reduce f {} features))))
