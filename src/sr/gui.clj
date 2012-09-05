@@ -41,16 +41,21 @@
 
 
 (defn open
+
   ([fnames]
-  (let [data (create fnames)]
+  (open fnames 2))
+
+  ([fnames dimension]
+  (let [data (create fnames dimension)]
     (defsketch sr
       :title "SR"
       :setup (partial setup data)
       :draw (partial draw data)
       :mouse-clicked (partial click-handle data)
       :size [300 300])))
-  ([fnames features]
-  (let [data (create fnames)]
+
+  ([fnames dimension features]
+  (let [data (create fnames dimension)]
     (defsketch sr
       :title "SR"
       :setup (fn []

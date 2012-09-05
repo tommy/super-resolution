@@ -12,6 +12,8 @@
 
 ;; Functions on the data object
 
+(def valid-dimensions #{1 2})
+
 (defn features-needed
   "The minimum number of features that need to be identified across
   the n images in order to be able to solve the linear system of
@@ -19,7 +21,10 @@
 
   This value depends on the dimension of the images."
   [data]
-  3)
+  {:pre [(contains? valid-dimensions (get-in data [:dimension]))]}
+  (case (get-in data [:dimension])
+    1 3
+    2 8))
 
 (defn ordered-fnames
   "Returns a seq of the fnames of the images in the order that they

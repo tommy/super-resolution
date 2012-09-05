@@ -6,9 +6,10 @@
      (class x)))
 
 (defn create
-  [fnames]
-  {:pre [(not (empty? fnames))]}
-  (ref {:fnames fnames}))
+  [fnames d]
+  {:pre [(<= 1 d 2)
+         (not (empty? fnames))]}
+  (ref {:fnames fnames :dimension d}))
 
 (defn make
   [data ks v]
