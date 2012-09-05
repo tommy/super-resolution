@@ -19,7 +19,7 @@
 
 (defn- tget
   [id]
-  (get @tasks id))
+  (get @tasks id (ref nil)))
 
 (defn task
   "Create a new task. If a max value is specified, the task is expected
@@ -56,9 +56,12 @@
     (/ (:now v) (:max v))))
 
 (defn progress
-  "Returns the percentage completion of the progress indicator keyed by k."
+  "Returns the percentage completion of the progress indicator keyed by k.
+  If the key is not found, returns nil."
   [id]
-  (float (percentage @(tget id))))
+  (if-let [v @(tget id)]
+    (float (percentage v))
+    nil))
 
 (defmacro task-item-macro
   "Executes the body and then increments the item count in the task keyed

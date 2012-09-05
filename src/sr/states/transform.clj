@@ -19,21 +19,32 @@
 (defn progress-bar
   [id]
   (let [h 20
-        y (- (/ (height) 2) (/ h 2))
         total (/ (width) 3)
-        prog (do (prn "id " id) (* total (progress id)))
         x (- (/ (width) 2) (/ total 2))
-        color-total (color 100)
-        color-done (color 200)]
-    (rect-mode :corner)
+        y (- (/ (height) 2 (/ h 2)))]
+    (if-let [percent (progress id)]
+      ;; if the progress was non-nil,
+      ;; draw the progress bar
+      (do
+        (let [prog (* total percent)
+              x (- (/ (width) 2) (/ total 2))
+              color-total (color 100)
+              color-done (color 200)]
+          (rect-mode :corner)
 
-    (fill color-total)
-    (stroke color-total)
-    (rect x y total h)
+          (fill color-total)
+          (stroke color-total)
+          (rect x y total h)
 
-    (fill color-done)
-    (stroke color-done)
-    (rect x y prog h)))
+          (fill color-done)
+          (stroke color-done)
+          (rect x y prog h)))
+      ;; if the progress is nil (missing)
+      (let [red (color 100 0 0)]
+        (fill red)
+        (stroke red)
+        (rect x y total h)))))
+      
 
 (defmethod step-do :transform
   [data]
