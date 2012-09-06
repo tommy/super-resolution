@@ -6,12 +6,15 @@
 (defn transform-img
   [data [fname p]]
   (let [oldimg (get-image data fname)
-        newimg (proj/transform oldimg p)]
+        newimg :wawawawa];(proj/transform @data oldimg p)]
     {fname newimg}))
 
 (defn transform-imgs
   [data ps]
-  {:pre [(every? fn? ps)]}
+  {:pre [;(= (set (:fnames data))
+           ; (conj (set (keys ps))
+           ;   (get-in data [:feature-match :primary :fname])))
+         (every? fn? (vals ps))]}
   (let [f (fn [m p] (note (into m (transform-img data p))))]
     (make data [:trans]
       (reduce f {} ps))))
@@ -54,7 +57,7 @@
 
 (defmethod done? :transform
   [data]
-  (realized? (:transform (state :step-do))))
+  (realized? (:transform (get-in @data [:step-do]))))
 
 
 (defmethod draw :transform
@@ -65,3 +68,9 @@
     (text "Transforming..." 0 (/ (height) 3))
     (progress-bar :trans)))
 
+(def ex (atom nil))
+
+(defmethod click-handle :transform
+  [data]
+  (let [f (get-in @data [:step-do :transform])]
+    (reset! ex {:f f})))

@@ -5,6 +5,17 @@
   (:use clojure.tools.logging)
   (:use sr.logging))
 
+(defn map-vals
+  "Maps f over the values of m and returns a map of the result."
+  [f m]
+  {:pre [(map? m) (fn? f)]
+   :post [(map? %)
+          (= (set (keys m))
+             (set (keys %)))]}
+  (reduce
+    #(update-in %1 [%2] f)
+    m
+    (keys m)))
 
 (def matricies?
   (comp
@@ -103,9 +114,13 @@
   [& args]
   (apply println (interleave args (repeat "\n"))))
 
+(defmulti make-transformation
+  "Create the projective transformation function."
+  (fn [dimension points]
+    dimension))
 
-(defn make-transformation
-  [points]
+(defmethod make-transformation 2 ;; make-transformation for 2-D
+  [_ points]
   (let [xs' (U1D (map (comp first :u) points))
         ys' (U1D (map (comp second :u) points))
         Ax (A2DX (map (juxt :x :u) points))
@@ -124,9 +139,11 @@
       "X=" X)
     (p 1 0 0)))
 
-(defn old-make-transformation
-  [points]
-  (let [u (U2D (map :x points))
+(defmethod make-transformation 1 ;; make transformation for 1-D
+  [_ points]
+  {:pre [(seq? points)]}
+  (let [points (map (partial map-vals first) points)
+        u (U2D (map :x points))
         A (A2D (map #(vector (:x %) (:u %)) points))]
      (println)
      (println "**** u = " u ", A = " A)
@@ -137,9 +154,11 @@
 
 (defn calculate-transformations
   [data]
-  (let [features (get-in data [:feature-match :features])
+  (let [dim (get-in data [:dimension])
+        features (get-in data [:feature-match :features])
         f (fn [m [k v]]
-            (assoc m k (make-transformation v)))]
+            (assoc m k (spy (make-transformation dim v))))
+        test (fn [m [k v]] (assoc m k (constantly k)))]
     (spy (reduce f {} features))))
 
 
@@ -231,4 +250,9 @@
       ;(.save newimg "transformed-image.png")
       newimg)))
 
-(def transform transform-2d)
+(defn transform
+  [data oldimg p]
+  {:pre [(contains? #{1 2} (get-in data [:dimension]))]}
+  (case (get-in data [:dimension])
+    1 (transform-1d oldimg p)
+    2 (transform-2d oldimg p)))

@@ -45,6 +45,12 @@
   [data]
   (prn @data))
 
+(defn advance-step-synchronous
+  [data]
+  {:pre [(ref? data)]}
+  (change data [:step] next-step)
+  (let [result (step-do data)]
+    (make data [:step-do (the-step data)] result)))
 
 (defn advance-step
   [data]
@@ -58,7 +64,7 @@
   {:pre [(ref? data)]}
   (when (done? data)
     (println "Old state is: " (the-step data))
-    (advance-step data)
+    (advance-step-synchronous data)
     (println "New state is: " (the-step data))))
 
 (load "states/feature_matching")
