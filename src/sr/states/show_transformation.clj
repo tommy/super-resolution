@@ -2,7 +2,7 @@
 
 (defmethod draw :show-transformation
   [data]
-  (let [prim (get-image data (primary data))
+  (let [prim (get-image data (primary @data))
         trans (:trans @data)
         boths (map #(vector (get-image data (key %)) (val %)) trans)
         img-b (ffirst boths)

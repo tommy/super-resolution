@@ -143,8 +143,8 @@
   [_ points]
   {:pre [(seq? points)]}
   (let [points (map (partial map-vals first) points)
-        u (U2D (map :x points))
-        A (A2D (map #(vector (:x %) (:u %)) points))]
+        u (U1D (map :x points))
+        A (A1D (map #(vector (:x %) (:u %)) points))]
      (println)
      (println "**** u = " u ", A = " A)
      (println)

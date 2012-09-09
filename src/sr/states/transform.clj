@@ -6,7 +6,7 @@
 (defn transform-img
   [data [fname p]]
   (let [oldimg (get-image data fname)
-        newimg :wawawawa];(proj/transform @data oldimg p)]
+        newimg (proj/transform @data oldimg p)]
     {fname newimg}))
 
 (defn transform-imgs
@@ -66,7 +66,8 @@
     (background 10)
     (text-font (create-font "Georgia" 10 true))
     (text "Transforming..." 0 (/ (height) 3))
-    (progress-bar :trans)))
+    (progress-bar :trans)
+    (checked-step-transition data)))
 
 (def ex (atom nil))
 
