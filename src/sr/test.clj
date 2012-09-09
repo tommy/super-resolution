@@ -98,3 +98,5 @@
         c (i/matrix [c1 c2])]
     (p A b c)))
 
+(defn -main [& args]
+  (open fnames 1))

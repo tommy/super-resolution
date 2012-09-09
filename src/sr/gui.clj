@@ -5,8 +5,7 @@
   (:use sr.states)
   (:use quil.core)
   (:use sr.data)
-  (:use sr.feature)
-  (:use sr.image))
+  (:use sr.feature))
 
 ;; SETUP
 

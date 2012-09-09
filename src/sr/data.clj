@@ -50,3 +50,8 @@
   (let [d @data]
     (when-not (pred d)
       (f d))))
+
+(defn get-image
+  [data fname]
+  {:pre [(not (ref? data))]}
+  ((:imgs data) fname))

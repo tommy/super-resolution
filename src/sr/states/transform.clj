@@ -1,11 +1,10 @@
 (in-ns 'sr.states)
 
-(use 'sr.image)
 (require '[sr.projective :as proj])
 
 (defn transform-img
   [data [fname p]]
-  (let [oldimg (get-image data fname)
+  (let [oldimg (get-image @data fname)
         newimg (proj/transform @data oldimg p)]
     {fname newimg}))
 

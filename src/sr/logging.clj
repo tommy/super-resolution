@@ -14,6 +14,10 @@
          (log ~level (str "Done with " '~expr))
          a#))))
 
+(defn printall
+  [& args]
+  (apply println (interleave args (repeat "\n"))))
+
 
 (defonce tasks (ref {}))
 
