@@ -1,4 +1,5 @@
 (defproject sr "1.0.0-SNAPSHOT"
+  :main sr.test
   :repl-init sr.test
   :description "Super-resolution image construction"
   :dependencies [[org.clojure/clojure "1.4.0"]
