@@ -1,11 +1,14 @@
 (in-ns 'sr.states)
 
-(require '[sr.projective :as proj])
+(require '[sr.projective :as p])
+(require '[sr.transform :as t])
 
 (defn transform-img
   [data [fname p]]
+  {:pre [(ref? data)]
+   :post [(not (nil? %))]}
   (let [oldimg (get-image @data fname)
-        newimg (proj/transform @data oldimg p)]
+        newimg (t/transform @data oldimg p)]
     {fname newimg}))
 
 (defn transform-imgs
@@ -13,7 +16,8 @@
   {:pre [;(= (set (:fnames data))
            ; (conj (set (keys ps))
            ;   (get-in data [:feature-match :primary :fname])))
-         (every? fn? (vals ps))]}
+         (every? fn? (vals ps))]
+   :post [(not (nil? (:trans @data)))]}
   (let [f (fn [m p] (note (into m (transform-img data p))))]
     (make data [:trans]
       (reduce f {} ps))))
@@ -51,8 +55,8 @@
 (defmethod step-do :transform
   [data]
   (prn "about to transform")
-  (transform-imgs data
-    (proj/calculate-transformations @data)))
+  (let [ps (p/calculate-transformations @data)]
+    (transform-imgs data ps)))
 
 (defmethod done? :transform
   [data]
