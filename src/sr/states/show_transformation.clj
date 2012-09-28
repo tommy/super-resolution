@@ -13,6 +13,7 @@
     (assert (not (nil? img-b')))
     (do
       (background 10)
+      (fill 255)
       (text-font (create-font "Georgia" 10 true))
       (text "U" 0 10)
       (set-image 0 10 prim)
@@ -26,3 +27,7 @@
 
       )))
 
+(defmethod click-handle :show-transformation
+  [data]
+  (save-frame)
+  (prn @data))
