@@ -2,7 +2,8 @@
   (:require [incanter.core :as i])
   (:import processing.core.PImage)
   (:use sr.util)
-  (:use sr.logging))
+  (:use sr.logging)
+  (:require [clojure.tools.logging :as log]))
 
 (defn one-row
   "Returns a seq of the pixel values of the first row of a PImage."
@@ -71,10 +72,10 @@
         newpxs (into-array Integer/TYPE newseq)]
     (do
       (prn "Got the transformed img")
-      (set! (.pixels newimg) newpxs)
-      (.updatePixels newimg)
-      (.save newimg "/home/tommy/transformed-image.png")
-      newimg)))
+      (note (set! (.pixels newimg) newpxs))
+      (note (.updatePixels newimg))
+      ;(.save newimg "/home/tommy/transformed-image.png")
+      (log/spy newimg))))
 
 (defn transform
   "Apply the projective transformation p to the PImage oldimg,

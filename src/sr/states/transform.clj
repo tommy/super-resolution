@@ -20,8 +20,9 @@
          (every? fn? (vals ps))]
    :post [(not (nil? (:trans @data)))]}
   (let [f (fn [m p] (note (into m (transform-img data p))))]
-    (make data [:trans]
-      (reduce f {} ps))))
+    (log/spy
+      (make data [:trans]
+        (reduce f {} ps)))))
 
 (defn progress-bar
   [id]

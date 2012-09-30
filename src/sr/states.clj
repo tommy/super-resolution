@@ -1,7 +1,8 @@
 (ns sr.states
   (:use quil.core)
   (:use sr.data)
-  (:use sr.logging))
+  (:use sr.logging)
+  (:require [clojure.tools.logging :as log]))
  
 
 ;; ORDER OF STATES
