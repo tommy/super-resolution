@@ -33,11 +33,11 @@
   "Result is returned as row-major seq."
   [mat p]
   (let [pt-transform
-         (as-task-item :trans
+         (as-task-item :transformation-progress
            (comp #(safe-nth-2 mat % 0) p i/matrix))
         cols (i/ncol mat)
         rows (i/nrow mat)
-        _ (task :trans (* cols rows))]
+        _ (task :transformation-progress (* cols rows))]
     (map
       pt-transform
       (for [x (range cols)
@@ -73,7 +73,7 @@
       (prn "Got the transformed img")
       (set! (.pixels newimg) newpxs)
       (.updatePixels newimg)
-      ;(.save newimg "transformed-image.png")
+      (.save newimg "/home/tommy/transformed-image.png")
       newimg)))
 
 (defn transform

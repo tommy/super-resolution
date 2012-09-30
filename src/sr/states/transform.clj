@@ -16,6 +16,7 @@
   {:pre [;(= (set (:fnames data))
            ; (conj (set (keys ps))
            ;   (get-in data [:feature-match :primary :fname])))
+         (not (empty? ps))
          (every? fn? (vals ps))]
    :post [(not (nil? (:trans @data)))]}
   (let [f (fn [m p] (note (into m (transform-img data p))))]
@@ -27,7 +28,7 @@
   (let [h 20
         total (/ (width) 3)
         x (- (/ (width) 2) (/ total 2))
-        y (- (/ (height) 2 (/ h 2)))]
+        y (- (/ (height) 2) (/ h 2))]
     (if-let [percent (progress id)]
       ;; if the progress was non-nil,
       ;; draw the progress bar
@@ -69,7 +70,7 @@
     (background 10)
     (text-font (create-font "Georgia" 10 true))
     (text "Transforming..." 0 (/ (height) 3))
-    (progress-bar :trans)
+    (progress-bar :transformation-progress)
     (checked-step-transition data)))
 
 (def ex (atom nil))
