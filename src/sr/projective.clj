@@ -29,6 +29,17 @@
           d (product-sum c x 1)]
       (i/div n d))))
 
+(defn projective-identity
+  "The identity element of the projective group.
+  
+  dim should be 1 or 2 (the dimension of the images the transformation
+  is defined on)."
+  [dim]
+  {:pre (#{1 2} dim)}
+  (case dim
+    1 (p 1 0 0)
+    2 (p (i/identity-matrix 2) (i/matrix [0 0]) (i/matrix [0 0]))))
+
 
 (defmulti make-transformation
   "Create the projective transformation function."
@@ -65,10 +76,8 @@
       "c2=" c2
       "bb=" bb
       "X=" X)
-    (p
-      (i/identity-matrix 2)
-      (i/matrix [0 0])
-      (i/matrix [0 0]))))
+    (projective-identity 2) 
+    ))
 
 (defn calculate-transformations
   [data]
