@@ -50,7 +50,7 @@
   {:pre [(ref? data)]}
   (change data [:step] next-step)
   (let [result (step-do data)]
-    (make data [:step-do (the-step data)] result)))
+    (make data [:step-do (the-step data)] (future result))))
 
 (defn advance-step
   [data]
