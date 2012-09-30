@@ -65,7 +65,10 @@
       "c2=" c2
       "bb=" bb
       "X=" X)
-    (p 1 0 0)))
+    (p
+      (i/identity-matrix 2)
+      (i/matrix [0 0])
+      (i/matrix [0 0]))))
 
 (defn calculate-transformations
   [data]
