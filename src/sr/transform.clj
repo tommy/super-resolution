@@ -41,8 +41,8 @@
         _ (task :transformation-progress (* cols rows))]
     (map
       pt-transform
-      (for [x (range cols)
-            y (range rows)]
+      (for [y (range rows)
+            x (range cols)]
         (vector x y)))))
 
 (defn transform-1d
