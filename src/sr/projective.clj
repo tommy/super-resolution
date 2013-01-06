@@ -58,7 +58,20 @@
      (let [[a b c] (mult (i/solve A) u)]
        (p a b c))))
 
-(defmethod make-transformation 2 ;; make-transformation for 2-D
+(defmethod make-transformation 2
+  [_ points]
+  (let [_ (spy points)
+        ps' (map :u points)
+        ps (map :x points)
+        _ (spy ps')
+        _ (spy ps)
+        _ (prn "about to run homography")
+        M (spy (homography ps' ps))
+        _ (spy M)
+        ]
+    (homography-matrix-as-fn M)))
+
+(defmethod make-transformation 3 ;; make-transformation for 2-D
   [_ points]
   (let [xs' (column (map (comp first :u) points))
         ys' (column (map (comp second :u) points))
