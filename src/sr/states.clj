@@ -65,7 +65,7 @@
   {:pre [(ref? data)]}
   (when (done? data)
     (println "Old state is: " (the-step data))
-    (advance-step data)
+    (advance-step-synchronous data)
     (println "New state is: " (the-step data))))
 
 (load "states/feature_matching")
