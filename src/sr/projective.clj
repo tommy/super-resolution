@@ -60,8 +60,8 @@
   [_ points]
   (let [points (take 4 points)
         _ (spy points)
-        ps' (map :u points)
-        ps  (map :x points)
+        ps  (map :u points)
+        ps' (map :x points)
         xs  (map first ps)
         ys  (map second ps)
         xs' (map first ps')
