@@ -24,7 +24,7 @@
   {:pre [(contains? valid-dimensions (get-in data [:dimension]))]}
   (case (get-in data [:dimension])
     1 3
-    2 8))
+    2 4))
 
 (defn ordered-fnames
   "Returns a seq of the fnames of the images in the order that they
