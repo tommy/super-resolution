@@ -17,6 +17,7 @@
 
 
 (defn matricies?
+  "Returns keyword dependening on the type of the arguments."
   [& args]
   (cond
     (every? i/matrix? args) :matrix

@@ -54,11 +54,9 @@
         newimg (PImage. w h (int 1))
         oldvec (one-row oldimg)
         newvec (one-d-img h (transform-1d-vector oldvec p))]
-    (do
-      (set! (.pixels newimg) (into-array Integer/TYPE newvec))
-      (.updatePixels newimg)
-      newimg)
-        ))
+    (set! (.pixels newimg) (into-array Integer/TYPE newvec))
+    (.updatePixels newimg)
+    newimg))
 
 (defn transform-2d
   "Apply the (2-dimensional) projective transformation p to the
@@ -70,12 +68,11 @@
         oldmat (note (i/matrix (seq (.pixels oldimg)) w))
         newseq (note (transform-2d-matrix oldmat p))
         newpxs (into-array Integer/TYPE newseq)]
-    (do
-      (prn "Got the transformed img")
-      (note (set! (.pixels newimg) newpxs))
-      (note (.updatePixels newimg))
-      ;(.save newimg "/home/tommy/transformed-image.png")
-      (log/spy newimg))))
+    (prn "Got the transformed img")
+    (note (set! (.pixels newimg) newpxs))
+    (note (.updatePixels newimg))
+    ;(.save newimg "/home/tommy/transformed-image.png")
+    (log/spy newimg)))
 
 (defn transform
   "Apply the projective transformation p to the PImage oldimg,

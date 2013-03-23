@@ -23,12 +23,10 @@
 
 (defmethod click-handle :feature-match
   [data]
-  (do
-    (let [x (mouse-x)
-          y (mouse-y)]
-      (add-feature data [x y])
-      (drop-curr data)
-      (checked-step-transition data)
-      (prn @data)
-      )))
-
+  (let [x (mouse-x)
+        y (mouse-y)]
+    (add-feature data [x y])
+    (drop-curr data)
+    (checked-step-transition data)
+    (prn @data)
+    ))

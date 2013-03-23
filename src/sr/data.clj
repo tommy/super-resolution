@@ -1,9 +1,7 @@
 (ns sr.data)
 
-(defn ref?
-  [x]
-  (= clojure.lang.Ref
-     (class x)))
+(def ref?
+  (comp (partial = clojure.lang.Ref) class))
 
 (defn create
   [fnames d]

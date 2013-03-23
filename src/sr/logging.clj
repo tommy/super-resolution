@@ -63,9 +63,8 @@
   "Returns the percentage completion of the progress indicator keyed by k.
   If the key is not found, returns nil."
   [id]
-  (if-let [v @(tget id)]
-    (float (percentage v))
-    nil))
+  (when-let [v @(tget id)]
+    (float (percentage v))))
 
 (defmacro task-item-macro
   "Executes the body and then increments the item count in the task keyed
