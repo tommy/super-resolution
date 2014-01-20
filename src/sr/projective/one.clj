@@ -9,8 +9,7 @@
   => [a b c]' = (A^-1) * U
   "
   (:require [incanter.core :as i])
-  (:use sr.math)
-  (:use sr.util))
+  (:require [sr.math :refer [column]]))
 
 (defn U1D
   "The k-by-1 column matrix [u]."

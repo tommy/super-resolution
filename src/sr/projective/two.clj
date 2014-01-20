@@ -22,7 +22,7 @@
   "
   (:require [incanter.core :as i])
   (:require [clojure.tools.logging :as log])
-  (:use sr.math))
+  (:require [sr.math :refer [column row]]))
 
 (defn rowA
   "Generate the 'Type A' row of the matrix M, which looks like

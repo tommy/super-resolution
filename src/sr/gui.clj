@@ -1,11 +1,10 @@
 (ns sr.gui
   (:require [sr.projective :as proj])
   (:use [clojure.tools.logging :only [spy]])
-  (:use sr.logging)
-  (:use sr.states)
-  (:use quil.core)
-  (:use sr.data)
-  (:use sr.feature))
+  (:require [sr.states :refer [advance-step click-handle draw]])
+  (:require [quil.core :refer [defsketch load-image]])
+  (:require [sr.data :refer [ref? make create]])
+  (:require [sr.feature :refer [init-features]]))
 
 ;; SETUP
 

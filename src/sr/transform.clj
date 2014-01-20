@@ -1,8 +1,8 @@
 (ns sr.transform
   (:require [incanter.core :as i])
   (:import processing.core.PImage)
-  (:use sr.util)
-  (:use sr.logging)
+  (:require [sr.util :refer [safe-nth safe-nth-2]])
+  (:require [sr.logging :refer [note as-task-item task]])
   (:require [clojure.tools.logging :as log]))
 
 (defn one-row

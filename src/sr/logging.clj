@@ -1,5 +1,5 @@
 (ns sr.logging
-  (:use clojure.tools.logging))
+  (:require [clojure.tools.logging :refer [log]]))
 
 (defmacro note
   "Logs the form, evaluates it, and returns the result without logging it.

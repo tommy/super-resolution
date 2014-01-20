@@ -1,7 +1,8 @@
 (ns sr.states
-  (:use quil.core)
-  (:use sr.data)
-  (:use sr.logging)
+  (:require [quil.core :refer [background text-font create-font text
+                               height width set-image mouse-x mouse-y
+                               color rect-mode fill stroke rect save-frame]])
+  (:require [sr.data :refer [ref? make change the-step get-image]])
   (:require [clojure.tools.logging :as log]))
  
 

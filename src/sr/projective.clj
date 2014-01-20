@@ -2,12 +2,11 @@
   (:require [incanter.core :as i])
   (:require [quil.core :as q])
   (:import processing.core.PImage)
-  (:use sr.projective.one)
-  (:use sr.projective.two)
-  (:use clojure.tools.logging)
-  (:use sr.logging)
-  (:use sr.math)
-  (:use sr.util))
+  (:require [sr.projective.one :refer [U1D A1D]])
+  (:require [sr.projective.two :refer [solve-for-parameters]])
+  (:require [clojure.tools.logging :refer [spy]])
+  (:require [sr.math :refer [column row product-sum mult]])
+  (:require [sr.util :refer [map-vals]]))
 
 
 (defn p

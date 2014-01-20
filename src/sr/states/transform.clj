@@ -2,6 +2,7 @@
 
 (require '[sr.projective :as p])
 (require '[sr.transform :as t])
+(require '[sr.logging :as l])
 
 (defn transform-img
   [data [fname p]]
@@ -19,7 +20,7 @@
          (not (empty? ps))
          (every? fn? (vals ps))]
    :post [(not (nil? (:trans @data)))]}
-  (let [f (fn [m p] (note (into m (transform-img data p))))]
+  (let [f (fn [m p] (l/note (into m (transform-img data p))))]
     (log/spy
       (make data [:trans]
         (reduce f {} ps)))))
@@ -31,7 +32,7 @@
         total (/ (width) 3)
         x (- (/ (width) 2) (/ total 2))
         y (- (/ (height) 2) (/ h 2))]
-    (if-let [percent (progress id)]
+    (if-let [percent (l/progress id)]
       ;; if the progress was non-nil,
       ;; draw the progress bar
       (let [prog (* total percent)

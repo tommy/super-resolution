@@ -1,6 +1,5 @@
 (ns sr.feature
-  (:use sr.projective)
-  (:use sr.data))
+  (:require [sr.data :refer [ref? make change]]))
 
 (defn feature-matching-done?
   "True if sufficiently many features have been identified."
