@@ -30,4 +30,4 @@
 (defmethod click-handle :show-transformation
   [data]
   (save-frame)
-  (prn @data))
+  (pp/pprint @data))

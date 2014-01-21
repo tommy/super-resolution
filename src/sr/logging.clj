@@ -1,5 +1,6 @@
 (ns sr.logging
-  (:require [clojure.tools.logging :refer [log]]))
+  (:require [clojure.tools.logging :refer [log]]
+            [clojure.pprint :as pp]))
 
 (defmacro note
   "Logs the form, evaluates it, and returns the result without logging it.
@@ -20,6 +21,9 @@
 
 
 (defonce tasks (ref {}))
+(add-watch tasks :printer (fn [_ _ old new]
+                            (prn "== Creating task.")
+                            (pp/pprint new)))
 
 (defn- tget
   [id]
@@ -29,11 +33,15 @@
   "Create a new task. If a max value is specified, the task is expected
   to be incremental."
   ([id]
-  (dosync
-    (alter tasks assoc id (atom {:percent 0.0}))))
+   (let [a (atom {:percent 0.0})]
+     ;(add-watch a :printer (fn [_ _ _ n] (prn "== TASK " id) (pp/pprint n)))
+     (dosync
+       (alter tasks assoc id a))))
   ([id max]
-  (dosync
-    (alter tasks assoc id (atom {:max max :now 0})))))
+   (let [a (atom {:max max :now 0})]
+     ;(add-watch a :printer (fn [_ _ _ n] (prn "== TASK " id) (pp/pprint n)))
+     (dosync
+       (alter tasks assoc id a)))))
 
 (defn task-set
   "Sets the current value of the task keyed by id.

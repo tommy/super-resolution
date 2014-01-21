@@ -1,13 +1,14 @@
 (ns sr.states
   (:require [quil.core :refer [background text-font create-font text
                                height width set-image mouse-x mouse-y
-                               color rect-mode fill stroke rect save-frame]])
-  (:require [sr.data :refer [ref? make change the-step get-image]])
-  (:require [clojure.tools.logging :as log]))
+                               color rect-mode fill stroke rect save-frame]]
+            [sr.data :refer [ref? make change the-step get-image]]
+            [clojure.tools.logging :as log]
+            [clojure.pprint :as pp]))
  
 
 ;; ORDER OF STATES
-(def next-step
+(def ^:private next-step
   {nil :feature-match
    :feature-match :transform
    :transform :show-transformation})
@@ -45,28 +46,22 @@
 (defmulti click-handle the-step)
 (defmethod click-handle :default
   [data]
-  (prn @data))
-
-(defn advance-step-synchronous
-  [data]
-  {:pre [(ref? data)]}
-  (change data [:step] next-step)
-  (let [result (step-do data)]
-    (make data [:step-do (the-step data)] (future result))))
+  (pp/pprint "== Default click handler.")
+  (pp/pprint @data))
 
 (defn advance-step
   [data]
   {:pre [(ref? data)]}
   (change data [:step] next-step)
-  (let [result (future (step-do data))]
-    (make data [:step-do (the-step data)] result)))
+  (let [future-result (future-call #(step-do data))]
+    (make data [:step-do (the-step data)] future-result)))
 
 (defn checked-step-transition
   [data]
   {:pre [(ref? data)]}
   (when (done? data)
     (println "Old state is: " (the-step data))
-    (advance-step-synchronous data)
+    (advance-step data)
     (println "New state is: " (the-step data))))
 
 (load "states/feature_matching")

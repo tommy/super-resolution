@@ -6,5 +6,11 @@
 
 (def drowzees ["data/drowzee.png" "data/drowzeeB.png"])
 
-(defn -main [& args]
+(defn ex-2d []
   (open drowzees 2))
+
+(defn ex-1d []
+  (open oned 1))
+
+(defn -main [& args]
+  (ex-2d))

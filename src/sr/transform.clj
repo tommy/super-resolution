@@ -3,23 +3,24 @@
   (:import processing.core.PImage)
   (:require [sr.util :refer [safe-nth safe-nth-2]])
   (:require [sr.logging :refer [note as-task-item task]])
-  (:require [clojure.tools.logging :as log]))
+  (:require [clojure.tools.logging :as log]
+            [clojure.pprint :as pp]))
 
-(defn one-row
+(defn- one-row
   "Returns a seq of the pixel values of the first row of a PImage."
   [img]
   (let [w (.width img)
         px (.pixels img)]
     (take w (vec px))))
 
-(defn one-d-img
+(defn- one-d-img
   "Returns a seq of pixel values for an image h pixels high, where
   each row is identical."
   [h row]
   (let [s (* h (count row))]
     (take s (cycle row))))
 
-(defn transform-1d-vector
+(defn- transform-1d-vector
   "Apply a projective transformation p to a 1D vector."
   [old p]
   {:pre [(coll? old)
@@ -30,7 +31,7 @@
          (map (comp #(safe-nth old n % 0) p) rs)]
     (vec newvec)))
 
-(defn transform-2d-matrix
+(defn- transform-2d-matrix
   "Result is returned as row-major seq."
   [mat p]
   (let [pt-transform
@@ -45,7 +46,7 @@
             x (range cols)]
         (vector x y)))))
 
-(defn transform-1d
+(defn- transform-1d
   "Apply the (1-dimensional) projective transformation p to the
   PImage oldimg, and return the result as a PImage."
   [oldimg p]
@@ -58,7 +59,7 @@
     (.updatePixels newimg)
     newimg))
 
-(defn transform-2d
+(defn- transform-2d
   "Apply the (2-dimensional) projective transformation p to the
   PImage oldimg, and return the result as a PImage."
   [oldimg p]
@@ -68,7 +69,7 @@
         oldmat (note (i/matrix (seq (.pixels oldimg)) w))
         newseq (note (transform-2d-matrix oldmat p))
         newpxs (into-array Integer/TYPE newseq)]
-    (prn "Got the transformed img")
+    (pp/pprint "== Got the transformed img")
     (note (set! (.pixels newimg) newpxs))
     (note (.updatePixels newimg))
     ;(.save newimg "/home/tommy/transformed-image.png")

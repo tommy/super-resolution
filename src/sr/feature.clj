@@ -1,5 +1,6 @@
 (ns sr.feature
-  (:require [sr.data :refer [ref? make change]]))
+  (:require [sr.data :refer [ref? make change]]
+            [clojure.pprint :as pp]))
 
 (defn feature-matching-done?
   "True if sufficiently many features have been identified."
@@ -54,7 +55,7 @@
           (not (nil? (get-in @data [:feature-match :primary :fname])))]}
   (let [os (ordered-fnames @data)
         primary (first os)]
-    (prn os)
+    (pp/pprint os)
     (make data [:feature-match :rest] os)
     (make data [:feature-match :primary :fname] primary)))
 

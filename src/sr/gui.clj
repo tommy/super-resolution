@@ -2,9 +2,10 @@
   (:require [sr.projective :as proj])
   (:use [clojure.tools.logging :only [spy]])
   (:require [sr.states :refer [advance-step click-handle draw]])
-  (:require [quil.core :refer [defsketch load-image]])
+  (:require [quil.core :refer [sketch load-image]])
   (:require [sr.data :refer [ref? make create]])
-  (:require [sr.feature :refer [init-features]]))
+  (:require [sr.feature :refer [init-features]]
+            [clojure.pprint :as pp]))
 
 ;; SETUP
 
@@ -35,7 +36,7 @@
     load-imgs
     init-features
     set-step)
-  (prn @data))
+  (pp/pprint @data))
 
 
 (defn open
@@ -45,16 +46,16 @@
 
   ([fnames dimension]
   (let [data (create fnames dimension)]
-    (defsketch sr
+    (sketch
       :title "SR"
       :setup (partial setup data)
       :draw (partial draw data)
       :mouse-clicked (partial click-handle data)
-      :size [300 300])))
+      :size [500 500])))
 
   ([fnames dimension features]
   (let [data (create fnames dimension)]
-    (defsketch sr
+    (sketch
       :title "SR"
       :setup (fn []
                (do
@@ -64,4 +65,4 @@
                  (advance-step data)))
       :draw (partial draw data)
       :mouse-clicked (partial click-handle data)
-      :size [300 300]))))
+      :size [500 500]))))

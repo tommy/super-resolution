@@ -4,7 +4,7 @@
 (require '[sr.transform :as t])
 (require '[sr.logging :as l])
 
-(defn transform-img
+(defn- transform-img
   [data [fname p]]
   {:pre [(ref? data)]
    :post [(not (nil? %))]}
@@ -12,7 +12,7 @@
         newimg (t/transform @data oldimg p)]
     {fname newimg}))
 
-(defn transform-imgs
+(defn- transform-imgs
   [data ps]
   {:pre [;(= (set (:fnames data))
            ; (conj (set (keys ps))
@@ -25,7 +25,7 @@
       (make data [:trans]
         (reduce f {} ps)))))
 
-(defn progress-bar
+(defn- progress-bar
   "Draw the progress bar."
   [id]
   (let [h 20
@@ -57,13 +57,13 @@
 
 (defmethod step-do :transform
   [data]
-  (prn "about to transform")
+  (prn "== About to transform")
   (let [ps (p/calculate-transformations @data)]
     (transform-imgs data ps)))
 
 (defmethod done? :transform
   [data]
-  (realized? (:transform (get-in @data [:step-do]))))
+  (realized? (get-in @data [:step-do :transform])))
 
 (defmethod draw :transform
   [data]

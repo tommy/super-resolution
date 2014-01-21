@@ -22,13 +22,7 @@
   (dosync
     (apply alter data update-in args)))
 
-(defn count-imgs
-  [data]
-  {:pre [(ref? data)]
-   :post [(< 0 %)]}
-  (count (:imgs @data)))
-
-(def valid-states
+(def ^:private valid-states
   #{nil
     :feature-match
     :transform
@@ -37,17 +31,8 @@
 (defn the-step
   [data]
   {:pre [(not (nil? data))]
-   :post [(contains? valid-states %)]}
+   :post [(valid-states %)]}
   (:step @data))
-
-(defn do-data
-  "Applies function f to data when (pred @data) evaluates
-  to false. (Threadsafe.)"
-  [pred f data]
-  {:pre [(ref? data)]}
-  (let [d @data]
-    (when-not (pred d)
-      (f d))))
 
 (defn get-image
   [data fname]
