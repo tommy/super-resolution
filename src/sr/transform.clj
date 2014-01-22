@@ -1,14 +1,16 @@
 (ns sr.transform
   (:require [incanter.core :as i])
   (:import processing.core.PImage)
-  (:require [sr.util :refer [safe-nth safe-nth-2]])
+  (:require [sr.util :refer [safe-nth to-row-major from-row-major]])
   (:require [sr.logging :refer [note as-task-item task]])
   (:require [clojure.tools.logging :as log]
             [clojure.pprint :as pp]))
 
+(set! *warn-on-reflection* true)
+
 (defn- one-row
   "Returns a seq of the pixel values of the first row of a PImage."
-  [img]
+  [^PImage img]
   (let [w (.width img)
         px (.pixels img)]
     (take w (vec px))))
@@ -31,25 +33,10 @@
          (map (comp #(safe-nth old n % 0) p) rs)]
     (vec newvec)))
 
-(defn- transform-2d-matrix
-  "Result is returned as row-major seq."
-  [mat p]
-  (let [pt-transform
-         (as-task-item :transformation-progress
-           (comp #(safe-nth-2 mat % 0) p i/matrix))
-        cols (i/ncol mat)
-        rows (i/nrow mat)
-        _ (task :transformation-progress (* cols rows))]
-    (map
-      pt-transform
-      (for [y (range rows)
-            x (range cols)]
-        (vector x y)))))
-
 (defn- transform-1d
   "Apply the (1-dimensional) projective transformation p to the
   PImage oldimg, and return the result as a PImage."
-  [oldimg p]
+  [^PImage oldimg p]
   (let [w (.width oldimg)
         h (.height oldimg)
         newimg (PImage. w h (int 1))
@@ -59,29 +46,42 @@
     (.updatePixels newimg)
     newimg))
 
-(defn- transform-2d
-  "Apply the (2-dimensional) projective transformation p to the
-  PImage oldimg, and return the result as a PImage."
-  [oldimg p]
+(defn- safe-get
+  [ary w h default [x y]]
+  (if (and (<= 0 x (dec w))
+           (<= 0 y (dec h)))
+    (aget ary ((to-row-major w) [x y]))
+    default))
+
+(defn transform-2d
+  [^PImage oldimg p]
   (let [w (.width oldimg)
         h (.height oldimg)
-        newimg (note (PImage. w h (int 1)))
-        oldmat (note (i/matrix (seq (.pixels oldimg)) w))
-        newseq (note (transform-2d-matrix oldmat p))
-        newpxs (into-array Integer/TYPE newseq)]
-    (pp/pprint "== Got the transformed img")
-    (note (set! (.pixels newimg) newpxs))
-    (note (.updatePixels newimg))
-    ;(.save newimg "/home/tommy/transformed-image.png")
-    (log/spy newimg)))
+        oldpxs (.pixels oldimg)
+        newimg (PImage. w h (int 1))
+        pt-transform
+          (as-task-item :transformation-progress
+            (comp
+              (partial safe-get oldpxs w h 0)
+              (partial map #(Math/round %))
+              p
+              i/matrix
+              (from-row-major w)))
+        newpxs (.pixels newimg)
+        _ (task :transformation-progress (* w h))]
+    (note
+      (doseq [idx (range (alength newpxs))]
+        (aset newpxs idx (pt-transform idx))))
+    (.updatePixels newimg)
+    newimg))
 
 (defn transform
   "Apply the projective transformation p to the PImage oldimg,
   and return the result as a PImage."
-  [data oldimg p]
+  [data ^PImage oldimg p]
   {:pre [(contains? #{1 2} (get-in data [:dimension]))
          (= PImage (class oldimg))]
    :post [(= PImage (class %))]}
   (case (get-in data [:dimension])
-    1 (transform-1d oldimg p)
-    2 (transform-2d oldimg p)))
+    1 (note (transform-1d oldimg p))
+    2 (note (transform-2d oldimg p))))
