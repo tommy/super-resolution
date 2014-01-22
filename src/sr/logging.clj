@@ -2,6 +2,19 @@
   (:require [clojure.tools.logging :refer [log]]
             [clojure.pprint :as pp]))
 
+(defonce timer-stats (atom {}))
+
+(defn update-avg
+  [{:keys [avg n] :as old} datapoint]
+  (if old
+    {:n (inc n)
+     :avg (/ (+ (* n avg) datapoint) (inc n))}
+    {:n 1 :avg datapoint}))
+
+(defn record-time
+  [form msecs]
+  (swap! timer-stats update-in [form] update-avg msecs))
+
 (defmacro note
   "Logs the form, evaluates it, and returns the result without logging it.
   
@@ -11,9 +24,12 @@
   ([level expr]
     `(do
        (log ~level '~expr)
-       (let [a# ~expr]
-         (log ~level (str "Done with " '~expr))
-         a#))))
+       (let [start# (. System (nanoTime))
+             ret# ~expr
+             msecs# (/ (double (- (. System (nanoTime)) start#)) 1000000.0)]
+         (log ~level (str "Done with " '~expr " in " msecs# " msecs"))
+         (record-time '~expr msecs#)
+         ret#))))
 
 (defn printall
   [& args]
