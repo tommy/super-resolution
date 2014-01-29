@@ -1,16 +1,27 @@
 (in-ns 'sr.states)
 
+(defn draw-image
+  [label x y img]
+  (text label x y)
+  (set-image x y img))
+
+(defn draw-image-pair
+  [label margin x y [img img']]
+  (draw-image label x y img)
+  (draw-image (str label "'")
+              x
+              (+ y margin (.height img))
+              img'))
+
 (defmethod draw :show-transformation
   [data]
   (let [prim (get-image @data (primary @data))
         trans (:trans @data)
-        boths (map #(vector (get-image @data (key %)) (val %)) trans)
-        img-b (ffirst boths)
-        img-b' (second (first boths))]
+        boths (map #(vector (get-image @data (key %)) (val %)) trans)]
     (assert (not (nil? prim)))
     (assert (not (nil? trans)))
-    (assert (not (nil? img-b)))
-    (assert (not (nil? img-b')))
+    (assert (not (empty? boths)))
+
     (do
       (background 10)
       (fill 255)
@@ -18,16 +29,14 @@
       (text "U" 0 10)
       (set-image 0 10 prim)
 
-      (let [y (+ 30 (.height prim))]
-        (text "B" 0 y)
-        (set-image 0 y img-b)
-        (let [y' (+ 30 y (.height img-b))]
-          (text "B'" 0 y')
-          (set-image 0 y' img-b')))
-
-      )))
+      (let [margin 30
+            draw-fn (fn [label x y imgs] (draw-image-pair label margin x y imgs))
+            labels ["B" "C" "D" "E" "F"]
+            xs (range 0 (width) (.width prim))
+            ys (repeat (count boths) (+ margin (.height prim)))]
+        (dorun (map draw-image-pair labels (repeat margin) xs ys boths))))))
 
 (defmethod click-handle :show-transformation
   [data]
-  (save-frame)
+  (save-frame "transformed-###.png")
   (pp/pprint @data))
