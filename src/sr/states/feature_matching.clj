@@ -24,8 +24,9 @@
 (defmethod click-handle :feature-match
   [data]
   (let [p [(mouse-x) (mouse-y)]]
+    (when (= [0 0] p)
+      (log/warn "Got a (0,0) feature. Probably an error."))
     (add-feature data p)
     (drop-curr data)
     (checked-step-transition data)
-    (pp/pprint @data)
-    ))
+    (pp/pprint @data)))
