@@ -20,7 +20,7 @@
         boths (map #(vector (get-image @data (key %)) (val %)) trans)]
     (assert (not (nil? prim)))
     (assert (not (nil? trans)))
-    (assert (not (empty? boths)))
+    (assert (seq boths))
 
     (do
       (background 10)
