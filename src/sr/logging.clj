@@ -1,10 +1,23 @@
 (ns sr.logging
-  (:require [clojure.tools.logging :refer [log]]
+  (:require [clojure.tools.logging :refer [log debug]]
             [clojure.pprint :as pp]))
+
+;; MISCELLANEOUS
+
+(defn printall
+  [& args]
+  (apply println (interleave args (repeat "\n"))))
+
+
+;; EXECUTION TIMING
 
 (defonce timer-stats (atom {}))
 
 (defn update-avg
+  "Update the running average for a data set.
+
+  Input should be a map in the format
+  {:avg 4.5, :n 6}"
   [{:keys [avg n] :as old} datapoint]
   (if old
     {:n (inc n)
@@ -12,6 +25,9 @@
     {:n 1 :avg datapoint}))
 
 (defn record-time
+  "Given the execution time of a given form,
+  update the average in the timer-stats map
+  keyed by the form."
   [form msecs]
   (swap! timer-stats update-in [form] update-avg msecs))
 
@@ -31,14 +47,12 @@
          (record-time '~expr msecs#)
          ret#))))
 
-(defn printall
-  [& args]
-  (apply println (interleave args (repeat "\n"))))
 
+;; PROGRESS TRACKING
 
-(defonce tasks (ref {}))
+(defonce ^:private tasks (ref {}))
 (add-watch tasks :printer (fn [_ _ old new]
-                            (prn "== Creating task.")
+                            (debug "== Creating task.")
                             (pp/pprint new)))
 
 (defn- tget
@@ -76,7 +90,6 @@
   (let [a (tget id)]
     (swap! a update-in [:now] inc)))
   
-
 (defn- percentage
   [v]
   (or
@@ -90,24 +103,10 @@
   (when-let [v @(tget id)]
     (float (percentage v))))
 
-(defmacro task-item-macro
-  "Executes the body and then increments the item count in the task keyed
-  by id.
-
-  Example:
-
-  (task :something 50)
-  (doseq [i (range 50)]
-    (task-item :something
-      (some-operation i)))"
-
-  [id expr]
-  `(do
-     (let [a# ~expr]
-       (task-inc ~id)
-       a#)))
-
 (defn as-task-item
+  "Given a function f and the id of a task being tracked,
+  return a function that behaves the same as f but increments
+  the :now value of the task when it is executed."
   [id f]
   (fn [& args]
     (task-inc id)

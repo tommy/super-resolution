@@ -31,7 +31,7 @@
   should appear on screen to perform the feature matching."
   [data]
   {:pre [(not (ref? data))]}
-  (let [fnames (keys (:imgs data))
+  (let [fnames (:fnames data)
         cycles (fn [n xs] (take (* n (count xs)) (cycle xs)))]
     (cycles (features-needed data) fnames)))
 

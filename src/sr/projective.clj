@@ -4,7 +4,7 @@
   (:import processing.core.PImage)
   (:require [sr.projective.one :refer [U1D A1D]])
   (:require [sr.projective.two :refer [solve-for-parameters]])
-  (:require [clojure.tools.logging :refer [spy]])
+  (:require [clojure.tools.logging :refer [spy] :as log])
   (:require [sr.math :refer [column row product-sum mult]])
   (:require [sr.util :refer [map-vals]]))
 
@@ -49,9 +49,7 @@
   (let [points (map (partial map-vals first) points)
         u (U1D (map :x points))
         A (A1D (map #(vector (:x %) (:u %)) points))]
-     (println)
-     (println "**** u = " u ", A = " A)
-     (println)
+     (log/debug "**** u = " u ", A = " A)
      (let [[a b c] (mult (i/solve A) u)]
        (p a b c))))
 

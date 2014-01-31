@@ -9,7 +9,6 @@
   [data]
   (set-image 0 0 (current-image data)))
 
-
 (defmethod done? :feature-match
   [data]
   (feature-matching-done? @data))
@@ -28,5 +27,4 @@
       (log/warn "Got a (0,0) feature. Probably an error."))
     (add-feature data p)
     (drop-curr data)
-    (checked-step-transition data)
-    (pp/pprint @data)))
+    (checked-step-transition data)))

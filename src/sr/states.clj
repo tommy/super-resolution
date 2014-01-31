@@ -2,7 +2,7 @@
   (:require [quil.core :refer [background text-font create-font text
                                height width set-image mouse-x mouse-y
                                color rect-mode fill stroke rect save-frame]]
-            [sr.data :refer [ref? make change the-step get-image]]
+            [sr.data :refer [ref? make change the-step get-image] :as data]
             [clojure.tools.logging :as log]
             [clojure.pprint :as pp]))
  
@@ -42,16 +42,17 @@
       x y)))
 
 ;; HANDLE CLICK EVENTS
-
 (defmulti click-handle the-step)
 (defmethod click-handle :default
   [data]
-  (pp/pprint "== Default click handler.")
+  (log/warn "== Default click handler.")
   (pp/pprint @data))
 
+;; STEP TRANSITION
 (defn advance-step
   [data]
   {:pre [(ref? data)]}
+  (data/write @data (format "data/data-%s.form" (:step @data)))
   (change data [:step] next-step)
   (let [future-result (future-call #(step-do data))]
     (make data [:step-do (the-step data)] future-result)))
@@ -60,9 +61,9 @@
   [data]
   {:pre [(ref? data)]}
   (when (done? data)
-    (println "Old state is: " (the-step data))
+    (log/info "Old state is: " (the-step data))
     (advance-step data)
-    (println "New state is: " (the-step data))))
+    (log/info "New state is: " (the-step data))))
 
 (load "states/feature_matching")
 (load "states/transform")

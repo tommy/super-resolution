@@ -15,7 +15,6 @@
    :post [(= [1 (count xs)] (i/dim %))]}
   (i/matrix [xs]))
 
-
 (defn matricies?
   "Returns keyword dependening on the type of the arguments."
   [& args]
