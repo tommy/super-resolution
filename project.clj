@@ -7,5 +7,5 @@
                  [incanter "1.3.0-SNAPSHOT"
                     :exclusions
                         [incanter/incanter-processing]]
-                 [quil "1.4.0"]]
+                 [quil "1.6.0"]]
   :jvm-opts ["-XX:-OmitStackTraceInFastThrow"])
