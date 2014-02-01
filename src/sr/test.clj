@@ -14,4 +14,7 @@
   (open oned 1))
 
 (defn -main [& args]
-  (ex-2d))
+  (open hike 2))
+
+(defn resume []
+  (open-saved "data/data-show.form"))
