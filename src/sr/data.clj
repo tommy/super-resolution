@@ -1,5 +1,9 @@
 (ns sr.data
-  (:require [clojure.java.io :as jio]))
+  (:import [processing.core PImage])
+  (:require [clojure.java.io :as jio]
+            [clojure.walk :as walk]
+            [quil.applet :refer [current-applet]]
+            [clojure.tools.logging :refer [spy]]))
 
 (def ref?
   (comp (partial = clojure.lang.Ref) class))
@@ -56,10 +60,62 @@
   {:pre [(not (ref? data))]}
   ((:imgs data) fname))
 
+;; SERIALIZATION OF @DATA
+(defn- image-ref
+  [^PImage img]
+  (let [fname (str "data/reference-images/" (. java.util.UUID randomUUID) ".png")
+        app (when-not (.parent img) (quil.applet/applet))]
+    (when app ;; horrible hack, since processing has a sucky design w/r/t images.
+      (set! (.parent img) app)) ;; (yes, img.parent is a public field, used only in .save to
+    (.save img fname)           ;;  get an absolute path for the output file. whatever.)
+    (when app
+      (quil.applet/applet-close app))
+    (list 'LOAD-PIMAGE fname)))
+
+(defn- future-ref
+  [fut]
+  (if (realized? fut)
+    (list 'FUTURE @fut)
+    (list 'FUTURE 'LOST)))
+    ;(throw (RuntimeException. "Tried writing a data object with pending computation."))))
+
+(defn replace-instances-with-references
+  [data]
+  (let [f (fn [x]
+            (cond
+              (= PImage (class x)) (image-ref x)
+              (future? x) (future-ref x)
+              :otherwise x))]
+    (walk/prewalk f data)))
+
 (defn write
   "Write the pretty printed version of data to out-file."
   [data out-file]
   {:pre [(not (ref? data))]}
   (with-open [w (jio/writer out-file)]
     (binding [*out* w]
-      (clojure.pprint/write data))))
+      (clojure.pprint/write
+        (replace-instances-with-references data)))))
+
+;; DE-SERIALIZATION OF @DATA
+(defn load-referenced-objects
+  "Walk the given form and replace all instances of
+  (LOAD-PIMAGE abc) with a PImage instance."
+  ([form]
+   (load-referenced-objects form (current-applet)))
+
+  ([form applet]
+   (let [f (fn [x]
+             (if-not (list? x) x
+               (condp = (first x)
+                 'LOAD-PIMAGE (.loadImage applet (second x))
+                 'FUTURE (future (second x))
+                 x)))]
+     (walk/postwalk f form))))
+
+(defn read
+  ([in-file]
+   (read in-file (current-applet)))
+  ([in-file applet]
+   (let [form (read-string (slurp in-file))]
+     (load-referenced-objects form applet))))

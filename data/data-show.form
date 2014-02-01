@@ -1,0 +1,38 @@
+{:step-do
+ {:show-transformation (FUTURE nil),
+  :transform
+  (FUTURE
+   {"data/hikeB.jpg"
+    (LOAD-PIMAGE
+     "data/reference-images/424de633-d2c7-40c9-b50f-191830cd7a12.png"),
+    "data/hikeC.jpg"
+    (LOAD-PIMAGE
+     "data/reference-images/36cee8d1-7267-46d9-ab0a-be9fa072319f.png")}),
+  :feature-match (FUTURE nil)},
+ :step :show-transformation,
+ :feature-match
+ {:features
+  {"data/hikeC.jpg"
+   ({:u [227 146], :x [259 151]}
+    {:u [206 45], :x [219 31]}
+    {:u [51 141], :x [65 176]}
+    {:u [74 45], :x [67 48]}),
+   "data/hikeB.jpg"
+   ({:u [227 146], :x [247 172]}
+    {:u [206 45], :x [225 56]}
+    {:u [51 141], :x [59 171]}
+    {:u [74 45], :x [81 57]})},
+  :primary {:current-feature [227 146], :fname "data/hikeU.jpg"},
+  :rest ()},
+ :imgs
+ {"data/hikeC.jpg"
+  (LOAD-PIMAGE
+   "data/reference-images/8b601200-f3ca-4673-b679-2a39a0817c29.png"),
+  "data/hikeB.jpg"
+  (LOAD-PIMAGE
+   "data/reference-images/d48167f6-2ce7-42c5-a4a0-f523ee59952d.png"),
+  "data/hikeU.jpg"
+  (LOAD-PIMAGE
+   "data/reference-images/d7aea0dc-816d-4048-a587-9da900e5523a.png")},
+ :fnames ["data/hikeU.jpg" "data/hikeB.jpg" "data/hikeC.jpg"],
+ :dimension 2}

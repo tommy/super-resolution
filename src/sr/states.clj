@@ -52,7 +52,6 @@
 (defn advance-step
   [data]
   {:pre [(ref? data)]}
-  (data/write @data (format "data/data-%s.form" (:step @data)))
   (change data [:step] next-step)
   (let [future-result (future-call #(step-do data))]
     (make data [:step-do (the-step data)] future-result)))

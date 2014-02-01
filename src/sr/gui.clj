@@ -1,9 +1,9 @@
 (ns sr.gui
   (:require [sr.projective :as proj])
-  (:use [clojure.tools.logging :only [spy]])
+  (:require [clojure.tools.logging :refer [spy] :as log])
   (:require [sr.states :refer [advance-step click-handle draw]])
   (:require [quil.core :refer [sketch load-image]])
-  (:require [sr.data :refer [ref? make create]])
+  (:require [sr.data :refer [ref? make create] :as d])
   (:require [sr.feature :refer [init-features]]
             [clojure.pprint :as pp]))
 
@@ -36,33 +36,31 @@
     load-imgs
     init-features
     set-step)
-  (pp/pprint @data))
+  (pp/pprint @data)
+  (flush))
 
 
 (defn open
 
-  ([fnames]
-  (open fnames 2))
+  ([fnames-or-data]
+  (if (not (ref? fnames-or-data))
+    (open fnames-or-data 2)
+    (sketch
+      :title "SR"
+      ;:setup (partial setup fnames-or-data)
+      :draw (partial draw fnames-or-data)
+      :mouse-clicked (partial click-handle fnames-or-data)
+      :size [400 600])))
 
   ([fnames dimension]
   (let [data (create fnames dimension)]
-    (sketch
-      :title "SR"
-      :setup (partial setup data)
-      :draw (partial draw data)
-      :mouse-clicked (partial click-handle data)
-      :size [500 500])))
+    (setup data)
+    (open data))))
 
-  ([fnames dimension features]
-  (let [data (create fnames dimension)]
-    (sketch
-      :title "SR"
-      :setup (fn []
-               (do
-                 (make data [:feature-match :features]
-                   {(first fnames) features})
-                 (setup data)
-                 (advance-step data)))
-      :draw (partial draw data)
-      :mouse-clicked (partial click-handle data)
-      :size [500 500]))))
+(defn open-saved
+  [file]
+  (let [app (quil.applet/applet)
+        data (d/read file app)]
+    (quil.applet/applet-close app)
+    (log/info "== Opening saved app state. Step is " (:step data))
+    (open (ref data))))

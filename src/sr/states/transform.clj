@@ -58,7 +58,6 @@
 (defmethod step-do :transform
   [data]
   (log/info "== About to transform")
-  (data/write @data "data/data-transform-step-do.form")
   (let [ps (p/calculate-transformations @data)]
     (transform-imgs data ps)))
 

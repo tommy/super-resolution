@@ -17,4 +17,5 @@
 
     (let [oldimg (.loadImage (quil.applet/applet) "data/drowzeeB.png")
           newimg (sr.transform/transform-2d oldimg p)]
-      (is (read-string (slurp "test/data/drowzeeB.png.transformed")) (seq (.pixels newimg))))))
+      (is (read-string (slurp "test/data/drowzeeB.png.transformed"))
+          (seq (.pixels newimg))))))
