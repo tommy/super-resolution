@@ -47,7 +47,7 @@
     newimg))
 
 (defn- safe-get
-  [ary w h default [x y]]
+  [^ints ary w h default [x y]]
   (if (and (<= 0 x (dec w))
            (<= 0 y (dec h)))
     (aget ary ((to-row-major w) [x y]))
@@ -63,7 +63,7 @@
           (as-task-item :transformation-progress
             (comp
               (partial safe-get oldpxs w h 0)
-              (partial map #(Math/round %))
+              (partial map (fn [^Float x] (Math/round x)))
               p
               i/matrix
               (from-row-major w)))
@@ -71,7 +71,7 @@
         _ (task :transformation-progress (* w h))]
     (note
       (doseq [idx (range (alength newpxs))]
-        (aset newpxs idx (pt-transform idx))))
+        (aset ^ints newpxs ^int idx ^int (pt-transform idx))))
     (.updatePixels newimg)
     newimg))
 
