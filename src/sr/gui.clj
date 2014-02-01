@@ -47,15 +47,18 @@
     (open fnames-or-data 2)
     (sketch
       :title "SR"
-      ;:setup (partial setup fnames-or-data)
       :draw (partial draw fnames-or-data)
       :mouse-clicked (partial click-handle fnames-or-data)
       :size [400 600])))
 
   ([fnames dimension]
   (let [data (create fnames dimension)]
-    (setup data)
-    (open data))))
+    (sketch
+      :title "SR"
+      :setup (partial setup data)
+      :draw (partial draw data)
+      :mouse-clicked (partial click-handle data)
+      :size [400 600]))))
 
 (defn open-saved
   [file]
