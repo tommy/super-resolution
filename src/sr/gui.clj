@@ -1,7 +1,7 @@
 (ns sr.gui
   (:require [sr.projective :as proj])
   (:require [clojure.tools.logging :refer [spy] :as log])
-  (:require [sr.states :refer [advance-step click-handle draw]])
+  (:require [sr.states :refer [advance-step click-handle draw key-typed]])
   (:require [quil.core :refer [sketch load-image]])
   (:require [sr.data :refer [ref? make create] :as d])
   (:require [sr.feature :refer [init-features]]
@@ -49,6 +49,7 @@
       :title "SR"
       :draw (partial draw fnames-or-data)
       :mouse-clicked (partial click-handle fnames-or-data)
+      :key-typed (partial key-typed fnames-or-data)
       :size [400 600])))
 
   ([fnames dimension]
@@ -58,6 +59,7 @@
       :setup (partial setup data)
       :draw (partial draw data)
       :mouse-clicked (partial click-handle data)
+      :key-typed (partial key-typed data)
       :size [400 600]))))
 
 (defn open-saved

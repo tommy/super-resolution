@@ -38,5 +38,16 @@
 
 (defmethod click-handle :show-transformation
   [data]
-  (save-frame "transformed-###.png")
-  (data/write @data "data/data-show-on-click.form"))
+  (checked-step-transition data))
+
+(defmethod done? :show-transformation
+  [data]
+  true)
+
+(defmethod key-typed :show-transformation
+  [data]
+  (let [k (raw-key)]
+    (case k
+      \s (do (log/info "Saving frame.") (save-frame "transformed-###.png"))
+      \w (do (log/info "Writing state.") (data/write @data "data/data-show-on-click.form"))
+      nil)))

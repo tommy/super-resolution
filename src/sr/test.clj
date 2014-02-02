@@ -13,8 +13,7 @@
 (defn ex-1d []
   (open oned 1))
 
-(defn -main [& args]
-  (open hike 2))
-
 (defn resume []
   (open-saved "data/data-show.form"))
+
+(def -main resume)

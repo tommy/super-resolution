@@ -1,7 +1,8 @@
 (ns sr.states
   (:require [quil.core :refer [background text-font create-font text
                                height width set-image mouse-x mouse-y
-                               color rect-mode fill stroke rect save-frame]]
+                               color rect-mode fill stroke rect save-frame
+                               raw-key]]
             [sr.data :refer [ref? make change the-step get-image] :as data]
             [clojure.tools.logging :as log]
             [clojure.pprint :as pp]))
@@ -9,9 +10,10 @@
 
 ;; ORDER OF STATES
 (def ^:private next-step
-  {nil :feature-match
-   :feature-match :transform
-   :transform :show-transformation})
+  {nil                  :feature-match
+   :feature-match       :transform
+   :transform           :show-transformation
+   :show-transformation :map})
 
 (def states
   (let [ks (keys next-step)
@@ -48,6 +50,12 @@
   (log/warn "== Default click handler.")
   (pp/pprint @data))
 
+;; HANDLE KEY PRESSES
+(defmulti key-typed the-step)
+(defmethod key-typed :default
+  [data]
+  (log/warn "== Default key-typed handler. '" (raw-key) "'"))
+
 ;; STEP TRANSITION
 (defn advance-step
   [data]
@@ -67,3 +75,4 @@
 (load "states/feature_matching")
 (load "states/transform")
 (load "states/show_transformation")
+(load "states/map")

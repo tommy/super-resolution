@@ -45,7 +45,8 @@
   #{nil
     :feature-match
     :transform
-    :show-transformation})
+    :show-transformation
+    :map})
 
 (defn the-step
   "Returns the current step of the SR construction."
